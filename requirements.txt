@@ -1,0 +1,4 @@
+xhtml2pdf
+Django==4.1.1
+django-widget-tweaks==1.4.12
+sqlparse==0.4.3
