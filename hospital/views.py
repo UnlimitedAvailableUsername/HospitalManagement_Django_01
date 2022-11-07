@@ -427,7 +427,6 @@ def discharge_patient_view(request, pk):
 import io
 from xhtml2pdf import pisa
 from django.template.loader import get_template
-from django.template import Context
 from django.http import HttpResponse
 
 
@@ -640,6 +639,8 @@ def delete_appointment_view(request, pk):
 # ---------------------------------------------------------------------------------
 
 
+
+
 # ---------------------------------------------------------------------------------
 # ------------------------ PATIENT RELATED VIEWS START ------------------------------
 # ---------------------------------------------------------------------------------
@@ -790,7 +791,7 @@ def patient_discharge_view(request):
         }
     return render(request, 'hospital/patient/patient_discharge.html', context=patientDict)
 
-
+# ---------------------------------------------------------------------------------
 # ------------------------ PATIENT RELATED VIEWS END ------------------------------
 # ---------------------------------------------------------------------------------
 
@@ -816,5 +817,5 @@ def contactus_view(request):
     return render(request, 'hospital/contactus.html', {'form': sub})
 
 # ---------------------------------------------------------------------------------
-# ------------------------ ADMIN RELATED VIEWS END ------------------------------
+# ------------------------ ABOUT US AND CONTACT US VIEWS END ------------------------------
 # ---------------------------------------------------------------------------------
