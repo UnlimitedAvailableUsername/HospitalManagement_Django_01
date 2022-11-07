@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect, reverse
-from django import forms
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.core.mail import send_mail
@@ -8,6 +7,7 @@ from datetime import datetime, timedelta, date
 from django.conf import settings
 from hospital.forms import *
 from . import forms, models
+
 
 # Create your views here.
 def home_view(request):
@@ -38,9 +38,9 @@ def patientclick_view(request):
 
 
 def admin_signup_view(request):
-    form = forms.AdminSigupForm()
+    form = forms.AdminSignupForm()
     if request.method == 'POST':
-        form = forms.AdminSigupForm(request.POST)
+        form = forms.AdminSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
             user.set_password(user.password)
@@ -164,7 +164,8 @@ def admin_doctor_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_doctor_view(request):
-    doctors = models.Doctor.objects.all().filter(status=True)
+    user = request.user.hospital
+    doctors = models.Doctor.objects.all().filter(status=True, hospital=user)
     return render(request, 'hospital/admin/admin_view_doctor.html', {'doctors': doctors})
 
 
@@ -270,7 +271,8 @@ def admin_patient_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_patient_view(request):
-    patients = models.Patient.objects.all().filter(status=True)
+    user = request.user.hospital
+    patients = models.Patient.objects.all().filter(status=True, hospital=user)
     return render(request, 'hospital/admin/admin_view_patient.html', {'patients': patients})
 
 
@@ -522,6 +524,10 @@ def reject_appointment_view(request, pk):
 # ---------------------------------------------------------------------------------
 
 
+
+
+
+
 # ---------------------------------------------------------------------------------
 # ------------------------ DOCTOR RELATED VIEWS START ------------------------------
 # ---------------------------------------------------------------------------------
@@ -554,10 +560,10 @@ def doctor_dashboard_view(request):
 @login_required(login_url='doctorlogin')
 @user_passes_test(is_doctor)
 def doctor_patient_view(request):
-    mydict = {
+    context = {
         'doctor': models.Doctor.objects.get(user_id=request.user.id),  # for profile picture of doctor in sidebar
     }
-    return render(request, 'hospital/doctor/doctor_patient.html', context=mydict)
+    return render(request, 'hospital/doctor/doctor_patient.html', context=context)
 
 
 @login_required(login_url='doctorlogin')
@@ -595,7 +601,8 @@ def doctor_view_appointment_view(request):
         patientid.append(a.patientId)
     patients = models.Patient.objects.all().filter(status=True, user_id__in=patientid)
     appointments = zip(appointments, patients)
-    return render(request, 'hospital/doctor/doctor_view_appointment.html', {'appointments': appointments, 'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_view_appointment.html',
+                  {'appointments': appointments, 'doctor': doctor})
 
 
 @login_required(login_url='doctorlogin')
@@ -608,7 +615,8 @@ def doctor_delete_appointment_view(request):
         patientid.append(a.patientId)
     patients = models.Patient.objects.all().filter(status=True, user_id__in=patientid)
     appointments = zip(appointments, patients)
-    return render(request, 'hospital/doctor/doctor_delete_appointment.html', {'appointments': appointments, 'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_delete_appointment.html',
+                  {'appointments': appointments, 'doctor': doctor})
 
 
 @login_required(login_url='doctorlogin')
@@ -623,7 +631,8 @@ def delete_appointment_view(request, pk):
         patientid.append(a.patientId)
     patients = models.Patient.objects.all().filter(status=True, user_id__in=patientid)
     appointments = zip(appointments, patients)
-    return render(request, 'hospital/doctor/doctor_delete_appointment.html', {'appointments': appointments, 'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_delete_appointment.html',
+                  {'appointments': appointments, 'doctor': doctor})
 
 
 # ---------------------------------------------------------------------------------
@@ -743,7 +752,8 @@ def patient_book_appointment_view(request):
 def patient_view_appointment_view(request):
     patient = models.Patient.objects.get(user_id=request.user.id)  # for profile picture of patient in sidebar
     appointments = models.Appointment.objects.all().filter(patientId=request.user.id)
-    return render(request, 'hospital/patient/patient_view_appointment.html', {'appointments': appointments, 'patient': patient})
+    return render(request, 'hospital/patient/patient_view_appointment.html',
+                  {'appointments': appointments, 'patient': patient})
 
 
 @login_required(login_url='patientlogin')

@@ -11,9 +11,10 @@ departments = [
 ]
 
 hospital_choices = [
-    (1, 'HAU'),
-    (2, 'AUF'),
-    (3, 'DHVSU')
+    ('HAU', 'HAU'),
+    ('AUF', 'AUF'),
+    ('DHVSU', 'DHVSU'),
+    ('OLFU', 'OLFU'),
 ]
 
 
@@ -61,7 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    hospital = models.PositiveSmallIntegerField(default=1, choices=hospital_choices)
+    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
@@ -93,11 +94,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pic/DoctorProfilePic/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pic/DoctorProfilePic/', null=True, blank=True)
     address = models.CharField(max_length=40)
-    mobile = models.CharField(max_length=20, null=True)
+    mobile = models.IntegerField(null=True)
     department = models.CharField(max_length=50, choices=departments, default='Cardiologist')
     status = models.BooleanField(default=False)
+    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
 
     @property
     def get_name(self):
@@ -113,13 +115,14 @@ class Doctor(models.Model):
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pic/PatientProfilePic/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pic/PatientProfilePic/', null=True, blank=True)
     address = models.CharField(max_length=40)
-    mobile = models.CharField(max_length=20, null=True)
+    mobile = models.IntegerField(null=True)
     symptoms = models.CharField(max_length=100, null=False)
     assignedDoctorId = models.PositiveIntegerField(null=True)
     admitDate = models.DateField(auto_now=True)
     status = models.BooleanField(default=False)
+    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
 
     @property
     def get_name(self):
@@ -148,7 +151,7 @@ class PatientDischargeDetails(models.Model):
     patientName = models.CharField(max_length=40)
     assignedDoctorName = models.CharField(max_length=40)
     address = models.CharField(max_length=40)
-    mobile = models.CharField(max_length=20, null=True)
+    mobile = models.IntegerField(null=True)
     symptoms = models.CharField(max_length=100, null=True)
 
     admitDate = models.DateField(null=False)

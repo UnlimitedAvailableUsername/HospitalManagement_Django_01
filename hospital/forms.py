@@ -5,10 +5,10 @@ from . import models
 User = get_user_model()
 
 # for admin signup
-class AdminSigupForm(forms.ModelForm):
+class AdminSignupForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'password']
+        fields = ['first_name', 'last_name', 'username', 'password', 'hospital']
         widgets = {
             'password': forms.PasswordInput()
         }
@@ -18,7 +18,7 @@ class AdminSigupForm(forms.ModelForm):
 class DoctorUserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'password']
+        fields = ['first_name', 'last_name', 'username', 'password', 'hospital']
         widgets = {
             'password': forms.PasswordInput()
         }
@@ -27,7 +27,7 @@ class DoctorUserForm(forms.ModelForm):
 class DoctorForm(forms.ModelForm):
     class Meta:
         model = models.Doctor
-        fields = ['address', 'mobile', 'department', 'status', 'profile_pic']
+        fields = ['address', 'mobile', 'department', 'status', 'profile_picture']
 
 
 # for teacher related form
@@ -49,7 +49,7 @@ class PatientForm(forms.ModelForm):
 
     class Meta:
         model = models.Patient
-        fields = ['address', 'mobile', 'status', 'symptoms', 'profile_pic']
+        fields = ['address', 'mobile', 'status', 'symptoms', 'profile_picture', 'hospital']
 
 
 class AppointmentForm(forms.ModelForm):
