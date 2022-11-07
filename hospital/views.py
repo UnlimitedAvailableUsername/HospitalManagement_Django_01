@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect, reverse
-from . import forms, models
-from django.db.models import Sum
+from django import forms
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime, timedelta, date
 from django.conf import settings
-
+from hospital.forms import *
+from . import forms, models
 
 # Create your views here.
 def home_view(request):
@@ -20,21 +20,21 @@ def home_view(request):
 def adminclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
-    return render(request, 'hospital/adminclick.html')
+    return render(request, 'hospital/admin/adminclick.html')
 
 
 # for showing signup/login button for doctor(by sumit)
 def doctorclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
-    return render(request, 'hospital/doctorclick.html')
+    return render(request, 'hospital/doctor/doctorclick.html')
 
 
 # for showing signup/login button for patient(by sumit)
 def patientclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
-    return render(request, 'hospital/patientclick.html')
+    return render(request, 'hospital/patient/patientclick.html')
 
 
 def admin_signup_view(request):
@@ -48,7 +48,7 @@ def admin_signup_view(request):
             my_admin_group = Group.objects.get_or_create(name='ADMIN')
             my_admin_group[0].user_set.add(user)
             return HttpResponseRedirect('adminlogin')
-    return render(request, 'hospital/adminsignup.html', {'form': form})
+    return render(request, 'hospital/admin/adminsignup.html', {'form': form})
 
 
 def doctor_signup_view(request):
@@ -68,7 +68,7 @@ def doctor_signup_view(request):
             my_doctor_group = Group.objects.get_or_create(name='DOCTOR')
             my_doctor_group[0].user_set.add(user)
         return HttpResponseRedirect('doctorlogin')
-    return render(request, 'hospital/doctorsignup.html', context=mydict)
+    return render(request, 'hospital/doctor/doctorsignup.html', context=mydict)
 
 
 def patient_signup_view(request):
@@ -89,7 +89,7 @@ def patient_signup_view(request):
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
         return HttpResponseRedirect('patientlogin')
-    return render(request, 'hospital/patientsignup.html', context=mydict)
+    return render(request, 'hospital/patient/patientsignup.html', context=mydict)
 
 
 # -----------for checking user is doctor , patient or admin(by sumit)
@@ -114,13 +114,13 @@ def afterlogin_view(request):
         if accountapproval:
             return redirect('doctor-dashboard')
         else:
-            return render(request, 'hospital/doctor_wait_for_approval.html')
+            return render(request, 'hospital/doctor/doctor_wait_for_approval.html')
     elif is_patient(request.user):
         accountapproval = models.Patient.objects.all().filter(user_id=request.user.id, status=True)
         if accountapproval:
             return redirect('patient-dashboard')
         else:
-            return render(request, 'hospital/patient_wait_for_approval.html')
+            return render(request, 'hospital/patient/patient_wait_for_approval.html')
 
 
 # ---------------------------------------------------------------------------------
@@ -151,21 +151,21 @@ def admin_dashboard_view(request):
         'appointmentcount': appointmentcount,
         'pendingappointmentcount': pendingappointmentcount,
     }
-    return render(request, 'hospital/admin_dashboard.html', context=mydict)
+    return render(request, 'hospital/admin/admin_dashboard.html', context=mydict)
 
 
 # this view for sidebar click on admin page
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_doctor_view(request):
-    return render(request, 'hospital/admin_doctor.html')
+    return render(request, 'hospital/admin/admin_doctor.html')
 
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_doctor_view(request):
     doctors = models.Doctor.objects.all().filter(status=True)
-    return render(request, 'hospital/admin_view_doctor.html', {'doctors': doctors})
+    return render(request, 'hospital/admin/admin_view_doctor.html', {'doctors': doctors})
 
 
 @login_required(login_url='adminlogin')
@@ -198,7 +198,7 @@ def update_doctor_view(request, pk):
             doctor.status = True
             doctor.save()
             return redirect('admin-view-doctor')
-    return render(request, 'hospital/admin_update_doctor.html', context=mydict)
+    return render(request, 'hospital/admin/admin_update_doctor.html', context=mydict)
 
 
 @login_required(login_url='adminlogin')
@@ -224,7 +224,7 @@ def admin_add_doctor_view(request):
             my_doctor_group[0].user_set.add(user)
 
         return HttpResponseRedirect('admin-view-doctor')
-    return render(request, 'hospital/admin_add_doctor.html', context=mydict)
+    return render(request, 'hospital/admin/admin_add_doctor.html', context=mydict)
 
 
 @login_required(login_url='adminlogin')
@@ -232,7 +232,7 @@ def admin_add_doctor_view(request):
 def admin_approve_doctor_view(request):
     # those whose approval are needed
     doctors = models.Doctor.objects.all().filter(status=False)
-    return render(request, 'hospital/admin_approve_doctor.html', {'doctors': doctors})
+    return render(request, 'hospital/admin/admin_approve_doctor.html', {'doctors': doctors})
 
 
 @login_required(login_url='adminlogin')
@@ -258,20 +258,20 @@ def reject_doctor_view(request, pk):
 @user_passes_test(is_admin)
 def admin_view_doctor_specialisation_view(request):
     doctors = models.Doctor.objects.all().filter(status=True)
-    return render(request, 'hospital/admin_view_doctor_specialisation.html', {'doctors': doctors})
+    return render(request, 'hospital/admin/admin_view_doctor_Specialisation.html', {'doctors': doctors})
 
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_patient_view(request):
-    return render(request, 'hospital/admin_patient.html')
+    return render(request, 'hospital/admin/admin_patient.html')
 
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_patient_view(request):
     patients = models.Patient.objects.all().filter(status=True)
-    return render(request, 'hospital/admin_view_patient.html', {'patients': patients})
+    return render(request, 'hospital/admin/admin_view_patient.html', {'patients': patients})
 
 
 @login_required(login_url='adminlogin')
@@ -305,7 +305,7 @@ def update_patient_view(request, pk):
             patient.assignedDoctorId = request.POST.get('assignedDoctorId')
             patient.save()
             return redirect('admin-view-patient')
-    return render(request, 'hospital/admin_update_patient.html', context=mydict)
+    return render(request, 'hospital/admin/admin_update_patient.html', context=mydict)
 
 
 @login_required(login_url='adminlogin')
@@ -332,7 +332,7 @@ def admin_add_patient_view(request):
             my_patient_group[0].user_set.add(user)
 
         return HttpResponseRedirect('admin-view-patient')
-    return render(request, 'hospital/admin_add_patient.html', context=mydict)
+    return render(request, 'hospital/admin/admin_add_patient.html', context=mydict)
 
 
 # ------------------FOR APPROVING PATIENT BY ADMIN----------------------
@@ -341,7 +341,7 @@ def admin_add_patient_view(request):
 def admin_approve_patient_view(request):
     # those whose approval are needed
     patients = models.Patient.objects.all().filter(status=False)
-    return render(request, 'hospital/admin_approve_patient.html', {'patients': patients})
+    return render(request, 'hospital/admin/admin_approve_patient.html', {'patients': patients})
 
 
 @login_required(login_url='adminlogin')
@@ -368,7 +368,7 @@ def reject_patient_view(request, pk):
 @user_passes_test(is_admin)
 def admin_discharge_patient_view(request):
     patients = models.Patient.objects.all().filter(status=True)
-    return render(request, 'hospital/admin_discharge_patient.html', {'patients': patients})
+    return render(request, 'hospital/admin/admin_discharge_patient.html', {'patients': patients})
 
 
 @login_required(login_url='adminlogin')
@@ -417,8 +417,8 @@ def discharge_patient_view(request, pk):
         pDD.total = (int(request.POST['roomCharge']) * int(d)) + int(request.POST['doctorFee']) + int(
             request.POST['medicineCost']) + int(request.POST['OtherCharge'])
         pDD.save()
-        return render(request, 'hospital/patient_final_bill.html', context=patientDict)
-    return render(request, 'hospital/patient_generate_bill.html', context=patientDict)
+        return render(request, 'hospital/patient/patient_final_bill.html', context=patientDict)
+    return render(request, 'hospital/patient/patient_generate_bill.html', context=patientDict)
 
 
 # --------------for discharge patient bill (pdf) download and printing
@@ -463,14 +463,14 @@ def download_pdf_view(request, pk):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_appointment_view(request):
-    return render(request, 'hospital/admin_appointment.html')
+    return render(request, 'hospital/admin/admin_appointment.html')
 
 
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_appointment_view(request):
     appointments = models.Appointment.objects.all().filter(status=True)
-    return render(request, 'hospital/admin_view_appointment.html', {'appointments': appointments})
+    return render(request, 'hospital/admin/admin_view_appointment.html', {'appointments': appointments})
 
 
 @login_required(login_url='adminlogin')
@@ -489,7 +489,7 @@ def admin_add_appointment_view(request):
             appointment.status = True
             appointment.save()
         return HttpResponseRedirect('admin-view-appointment')
-    return render(request, 'hospital/admin_add_appointment.html', context=mydict)
+    return render(request, 'hospital/admin/admin_add_appointment.html', context=mydict)
 
 
 @login_required(login_url='adminlogin')
@@ -497,7 +497,7 @@ def admin_add_appointment_view(request):
 def admin_approve_appointment_view(request):
     # those whose approval are needed
     appointments = models.Appointment.objects.all().filter(status=False)
-    return render(request, 'hospital/admin_approve_appointment.html', {'appointments': appointments})
+    return render(request, 'hospital/admin/admin_approve_appointment.html', {'appointments': appointments})
 
 
 @login_required(login_url='adminlogin')
@@ -548,7 +548,7 @@ def doctor_dashboard_view(request):
         'appointments': appointments,
         'doctor': models.Doctor.objects.get(user_id=request.user.id),  # for profile picture of doctor in sidebar
     }
-    return render(request, 'hospital/doctor_dashboard.html', context=mydict)
+    return render(request, 'hospital/doctor/doctor_dashboard.html', context=mydict)
 
 
 @login_required(login_url='doctorlogin')
@@ -557,7 +557,7 @@ def doctor_patient_view(request):
     mydict = {
         'doctor': models.Doctor.objects.get(user_id=request.user.id),  # for profile picture of doctor in sidebar
     }
-    return render(request, 'hospital/doctor_patient.html', context=mydict)
+    return render(request, 'hospital/doctor/doctor_patient.html', context=mydict)
 
 
 @login_required(login_url='doctorlogin')
@@ -565,7 +565,7 @@ def doctor_patient_view(request):
 def doctor_view_patient_view(request):
     patients = models.Patient.objects.all().filter(status=True, assignedDoctorId=request.user.id)
     doctor = models.Doctor.objects.get(user_id=request.user.id)  # for profile picture of doctor in sidebar
-    return render(request, 'hospital/doctor_view_patient.html', {'patients': patients, 'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_view_patient.html', {'patients': patients, 'doctor': doctor})
 
 
 @login_required(login_url='doctorlogin')
@@ -574,7 +574,7 @@ def doctor_view_discharge_patient_view(request):
     dischargedpatients = models.PatientDischargeDetails.objects.all().distinct().filter(
         assignedDoctorName=request.user.first_name)
     doctor = models.Doctor.objects.get(user_id=request.user.id)  # for profile picture of doctor in sidebar
-    return render(request, 'hospital/doctor_view_discharge_patient.html',
+    return render(request, 'hospital/doctor/doctor_view_discharge_patient.html',
                   {'dischargedpatients': dischargedpatients, 'doctor': doctor})
 
 
@@ -582,7 +582,7 @@ def doctor_view_discharge_patient_view(request):
 @user_passes_test(is_doctor)
 def doctor_appointment_view(request):
     doctor = models.Doctor.objects.get(user_id=request.user.id)  # for profile picture of doctor in sidebar
-    return render(request, 'hospital/doctor_appointment.html', {'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_appointment.html', {'doctor': doctor})
 
 
 @login_required(login_url='doctorlogin')
@@ -595,7 +595,7 @@ def doctor_view_appointment_view(request):
         patientid.append(a.patientId)
     patients = models.Patient.objects.all().filter(status=True, user_id__in=patientid)
     appointments = zip(appointments, patients)
-    return render(request, 'hospital/doctor_view_appointment.html', {'appointments': appointments, 'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_view_appointment.html', {'appointments': appointments, 'doctor': doctor})
 
 
 @login_required(login_url='doctorlogin')
@@ -608,7 +608,7 @@ def doctor_delete_appointment_view(request):
         patientid.append(a.patientId)
     patients = models.Patient.objects.all().filter(status=True, user_id__in=patientid)
     appointments = zip(appointments, patients)
-    return render(request, 'hospital/doctor_delete_appointment.html', {'appointments': appointments, 'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_delete_appointment.html', {'appointments': appointments, 'doctor': doctor})
 
 
 @login_required(login_url='doctorlogin')
@@ -623,7 +623,7 @@ def delete_appointment_view(request, pk):
         patientid.append(a.patientId)
     patients = models.Patient.objects.all().filter(status=True, user_id__in=patientid)
     appointments = zip(appointments, patients)
-    return render(request, 'hospital/doctor_delete_appointment.html', {'appointments': appointments, 'doctor': doctor})
+    return render(request, 'hospital/doctor/doctor_delete_appointment.html', {'appointments': appointments, 'doctor': doctor})
 
 
 # ---------------------------------------------------------------------------------
@@ -648,14 +648,14 @@ def patient_dashboard_view(request):
         'doctorDepartment': doctor.department,
         'admitDate': patient.admitDate,
     }
-    return render(request, 'hospital/patient_dashboard.html', context=mydict)
+    return render(request, 'hospital/patient/patient_dashboard.html', context=mydict)
 
 
 @login_required(login_url='patientlogin')
 @user_passes_test(is_patient)
 def patient_appointment_view(request):
     patient = models.Patient.objects.get(user_id=request.user.id)  # for profile picture of patient in sidebar
-    return render(request, 'hospital/patient_appointment.html', {'patient': patient})
+    return render(request, 'hospital/patient/patient_appointment.html', {'patient': patient})
 
 
 @login_required(login_url='patientlogin')
@@ -679,7 +679,7 @@ def patient_book_appointment_view(request):
                 else:
                     print('else')
                     message = "Please Choose Doctor According To Disease"
-                    return render(request, 'hospital/patient_book_appointment.html',
+                    return render(request, 'hospital/patient/patient_book_appointment.html',
                                   {'appointmentForm': appointmentForm, 'patient': patient, 'message': message})
 
             if doctor.department == 'Dermatologists':
@@ -688,7 +688,7 @@ def patient_book_appointment_view(request):
                 else:
                     print('else')
                     message = "Please Choose Doctor According To Disease"
-                    return render(request, 'hospital/patient_book_appointment.html',
+                    return render(request, 'hospital/patient/patient_book_appointment.html',
                                   {'appointmentForm': appointmentForm, 'patient': patient, 'message': message})
 
             if doctor.department == 'Emergency Medicine Specialists':
@@ -697,7 +697,7 @@ def patient_book_appointment_view(request):
                 else:
                     print('else')
                     message = "Please Choose Doctor According To Disease"
-                    return render(request, 'hospital/patient_book_appointment.html',
+                    return render(request, 'hospital/patient/patient_book_appointment.html',
                                   {'appointmentForm': appointmentForm, 'patient': patient, 'message': message})
 
             if doctor.department == 'Allergists/Immunologists':
@@ -706,7 +706,7 @@ def patient_book_appointment_view(request):
                 else:
                     print('else')
                     message = "Please Choose Doctor According To Disease"
-                    return render(request, 'hospital/patient_book_appointment.html',
+                    return render(request, 'hospital/patient/patient_book_appointment.html',
                                   {'appointmentForm': appointmentForm, 'patient': patient, 'message': message})
 
             if doctor.department == 'Anesthesiologists':
@@ -715,7 +715,7 @@ def patient_book_appointment_view(request):
                 else:
                     print('else')
                     message = "Please Choose Doctor According To Disease"
-                    return render(request, 'hospital/patient_book_appointment.html',
+                    return render(request, 'hospital/patient/patient_book_appointment.html',
                                   {'appointmentForm': appointmentForm, 'patient': patient, 'message': message})
 
             if doctor.department == 'Colon and Rectal Surgeons':
@@ -724,7 +724,7 @@ def patient_book_appointment_view(request):
                 else:
                     print('else')
                     message = "Please Choose Doctor According To Disease"
-                    return render(request, 'hospital/patient_book_appointment.html',
+                    return render(request, 'hospital/patient/patient_book_appointment.html',
                                   {'appointmentForm': appointmentForm, 'patient': patient, 'message': message})
 
             appointment = appointmentForm.save(commit=False)
@@ -735,7 +735,7 @@ def patient_book_appointment_view(request):
             appointment.status = False
             appointment.save()
         return HttpResponseRedirect('patient-view-appointment')
-    return render(request, 'hospital/patient_book_appointment.html', context=mydict)
+    return render(request, 'hospital/patient/patient_book_appointment.html', context=mydict)
 
 
 @login_required(login_url='patientlogin')
@@ -743,7 +743,7 @@ def patient_book_appointment_view(request):
 def patient_view_appointment_view(request):
     patient = models.Patient.objects.get(user_id=request.user.id)  # for profile picture of patient in sidebar
     appointments = models.Appointment.objects.all().filter(patientId=request.user.id)
-    return render(request, 'hospital/patient_view_appointment.html', {'appointments': appointments, 'patient': patient})
+    return render(request, 'hospital/patient/patient_view_appointment.html', {'appointments': appointments, 'patient': patient})
 
 
 @login_required(login_url='patientlogin')
@@ -778,7 +778,7 @@ def patient_discharge_view(request):
             'patient': patient,
             'patientId': request.user.id,
         }
-    return render(request, 'hospital/patient_discharge.html', context=patientDict)
+    return render(request, 'hospital/patient/patient_discharge.html', context=patientDict)
 
 
 # ------------------------ PATIENT RELATED VIEWS END ------------------------------

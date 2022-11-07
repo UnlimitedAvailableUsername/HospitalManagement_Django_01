@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 departments = [
     ('Cardiologist', 'Cardiologist'),
@@ -9,6 +9,86 @@ departments = [
     ('Anesthesiologists', 'Anesthesiologists'),
     ('Colon and Rectal Surgeons', 'Colon and Rectal Surgeons')
 ]
+
+hospital_choices = [
+    (1, 'HAU'),
+    (2, 'AUF'),
+    (3, 'DHVSU')
+]
+
+
+class UserManager(BaseUserManager):
+    def createUser(
+            self,
+            username,
+            password=None,
+            is_active=True,
+            is_staff=False,
+            is_admin=False,
+    ):
+        if not username:
+            raise ValueError("Username is a requirement")
+        if not password:
+            raise ValueError("Password is a requirement")
+
+        user_obj = self.model(username=username)
+        user_obj.set_password(password)
+        user_obj.staff = is_staff
+        user_obj.admin = is_admin
+        user_obj.active = is_active
+        user_obj.save(using=self._db)
+
+        return user_obj
+
+    def createStaff(
+            self,
+            username,
+            password=None
+    ):
+        user = self.createUser(username, password=password, is_staff=True, is_active=True)
+        return user
+
+    def create_superuser(self, username, password=None):
+        user = self.createUser(username, password=password, is_staff=True, is_admin=True, is_active=True)
+        return user
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=40, unique=True, null=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    active = models.BooleanField(default=True)
+    staff = models.BooleanField(default=False)
+    admin = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    hospital = models.PositiveSmallIntegerField(default=1, choices=hospital_choices)
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
+    def __str__(self):
+        return self.username
+
+    def has_perm(self, perm, obj=None):
+        return True
+
+    def has_module_perms(self, app_label):
+        return True
+
+    @property
+    def is_staff(self):
+        return self.staff
+
+    @property
+    def is_admin(self):
+        return self.admin
+
+    @property
+    def is_active(self):
+        return self.active
+
 
 
 class Doctor(models.Model):

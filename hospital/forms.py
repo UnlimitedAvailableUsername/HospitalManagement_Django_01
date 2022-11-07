@@ -1,7 +1,8 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model, authenticate
 from . import models
 
+User = get_user_model()
 
 # for admin signup
 class AdminSigupForm(forms.ModelForm):
