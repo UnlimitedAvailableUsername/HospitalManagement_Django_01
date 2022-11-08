@@ -13,6 +13,7 @@ from . import forms, models
 # --------------------------------- SIGNUP VIEW START ---------------------------
 # -------------------------------------------------------------------------------
 
+
 def home_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
@@ -58,21 +59,31 @@ def admin_signup_view(request):
             my_admin_group = Group.objects.get_or_create(name='ADMIN')
             my_admin_group[0].user_set.add(user)
             return HttpResponseRedirect('adminlogin')
+        else:
+            return render(request, 'hospital/admin/adminsignup.html', {'form': form})
     return render(request, 'hospital/admin/adminsignup.html', {'form': form})
 
 
 def main_admin_signup_view(request):
-    form = forms.MainAdminSignupForm()
+    userForm = forms.MainAdminUserForm()
+    mainadminForm = forms.MainAdminForm()
+    context = {'userForm': userForm, 'mainadminForm': mainadminForm}
     if request.method == 'POST':
-        form = forms.MainAdminSignupForm(request.POST)
-        if form.is_valid():
-            user = form.save()
+        userForm = forms.MainAdminUserForm(request.POST)
+        mainadminForm = forms.MainAdminForm(request.POST)
+        if userForm.is_valid() and mainadminForm.is_valid():
+            user = userForm.save()
             user.set_password(user.password)
             user.save()
-            my_admin_group = Group.objects.get_or_create(name='MAINADMIN')
-            my_admin_group[0].user_set.add(user)
+            mainadmin = mainadminForm.save()
+            mainadmin.user = user
+            mainadmin = mainadmin.save()
+            my_mainadmin_group = Group.objects.get_or_create(name='MAINADMIN')
+            my_mainadmin_group[0].user_set.add(user)
             return HttpResponseRedirect('mainadminlogin')
-    return render(request, 'hospital/mainadmin/main_adminsignup.html', {'form': form})
+        else:
+            return render(request, 'hospital/mainadmin/main_adminsignup.html', context)
+    return render(request, 'hospital/mainadmin/main_adminsignup.html', context)
 
 
 def doctor_signup_view(request):
@@ -91,6 +102,10 @@ def doctor_signup_view(request):
             doctor = doctor.save()
             my_doctor_group = Group.objects.get_or_create(name='DOCTOR')
             my_doctor_group[0].user_set.add(user)
+        else:
+            print(userForm.errors)
+            print(doctorForm.errors)
+            return render(request, 'hospital/doctor/doctorsignup.html', context=mydict)
         return HttpResponseRedirect('doctorlogin')
     return render(request, 'hospital/doctor/doctorsignup.html', context=mydict)
 
@@ -112,15 +127,22 @@ def patient_signup_view(request):
             patient = patient.save()
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
+        else:
+            return render(request, 'hospital/patient/patientsignup.html', context=mydict)
         return HttpResponseRedirect('patientlogin')
     return render(request, 'hospital/patient/patientsignup.html', context=mydict)
 
-# -------------------------------------------------------------------------------
-# --------------------------------- SIGNUP VIEW END ---------------------------
-# -------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------------
+# --------------------------------- SIGNUP VIEW END ----------------------------------
+# ------------------------------------------------------------------------------------
 
 
-# -----------for checking user is doctor , patient or admin(by sumit)
+# ------------------------------------------------------------------------------------
+# -------------------------- USER-TYPE VALIDATION ------------------------------------
+# ------------------------------------------------------------------------------------
+
+
 def is_admin(user):
     return user.groups.filter(name='ADMIN').exists()
 
@@ -162,6 +184,8 @@ def afterlogin_view(request):
 # ---------------------------------------------------------------------------------
 # ------------------------ ADMIN RELATED VIEWS START ------------------------------
 # ---------------------------------------------------------------------------------
+
+
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_dashboard_view(request):
@@ -201,7 +225,7 @@ def admin_doctor_view(request):
 @user_passes_test(is_admin)
 def admin_view_doctor_view(request):
     user = request.user.hospital
-    doctors = models.Doctor.objects.all().filter(status=True, hospital=user)
+    doctors = models.Doctor.objects.all().filter(status=True)
     return render(request, 'hospital/admin/admin_view_doctor.html', {'doctors': doctors})
 
 
@@ -235,6 +259,8 @@ def update_doctor_view(request, pk):
             doctor.status = True
             doctor.save()
             return redirect('admin-view-doctor')
+        else:
+            return render(request, 'hospital/admin/admin_update_doctor.html', context=mydict)
     return render(request, 'hospital/admin/admin_update_doctor.html', context=mydict)
 
 
@@ -259,7 +285,8 @@ def admin_add_doctor_view(request):
 
             my_doctor_group = Group.objects.get_or_create(name='DOCTOR')
             my_doctor_group[0].user_set.add(user)
-
+        else:
+            return render(request, 'hospital/admin/admin_add_doctor.html', context=mydict)
         return HttpResponseRedirect('admin-view-doctor')
     return render(request, 'hospital/admin/admin_add_doctor.html', context=mydict)
 
@@ -294,7 +321,7 @@ def reject_doctor_view(request, pk):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_doctor_specialisation_view(request):
-    doctors = models.Doctor.objects.all().filter(status=True)
+    doctors = models.Doctor.objects.all().filter(status=True, hospital=user)
     return render(request, 'hospital/admin/admin_view_doctor_Specialisation.html', {'doctors': doctors})
 
 
@@ -343,6 +370,8 @@ def update_patient_view(request, pk):
             patient.assigned_doctor_id = request.POST.get('assigned_doctor_id')
             patient.save()
             return redirect('admin-view-patient')
+        else:
+            return render(request, 'hospital/admin/admin_update_patient.html', context=mydict)
     return render(request, 'hospital/admin/admin_update_patient.html', context=mydict)
 
 
@@ -368,7 +397,8 @@ def admin_add_patient_view(request):
 
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
-
+        else:
+            return render(request, 'hospital/admin/admin_add_patient.html', context=mydict)
         return HttpResponseRedirect('admin-view-patient')
     return render(request, 'hospital/admin/admin_add_patient.html', context=mydict)
 
@@ -525,6 +555,8 @@ def admin_add_appointment_view(request):
             appointment.patientName = models.User.objects.get(id=request.POST.get('patientId')).first_name
             appointment.status = True
             appointment.save()
+        else:
+            return render(request, 'hospital/admin/admin_add_appointment.html', context=mydict)
         return HttpResponseRedirect('admin-view-appointment')
     return render(request, 'hospital/admin/admin_add_appointment.html', context=mydict)
 
@@ -552,6 +584,8 @@ def reject_appointment_view(request, pk):
     appointment = models.Appointment.objects.get(id=pk)
     appointment.delete()
     return redirect('admin-approve-appointment')
+
+
 # ---------------------------------------------------------------------------------
 # ------------------------ ADMIN RELATED VIEWS END ------------------------------
 # ---------------------------------------------------------------------------------
@@ -623,6 +657,8 @@ def update_doctor_view(request, pk):
             doctor.status = True
             doctor.save()
             return redirect('main-admin-view-doctor')
+        else:
+            return render(request, 'hospital/mainadmin/main_admin_update_doctor.html', context=mydict)
     return render(request, 'hospital/mainadmin/main_admin_update_doctor.html', context=mydict)
 
 
@@ -639,16 +675,15 @@ def main_admin_add_doctor_view(request):
             user = userForm.save()
             user.set_password(user.password)
             user.save()
-
             doctor = doctorForm.save(commit=False)
             doctor.user = user
             doctor.status = True
             doctor.save()
-
             my_doctor_group = Group.objects.get_or_create(name='DOCTOR')
             my_doctor_group[0].user_set.add(user)
-
-        return HttpResponseRedirect('main-admin-view-doctor')
+        else:
+            return render(request, 'hospital/mainadmin/main_admin_add_doctor.html', context=mydict)
+        return HttpResponseRedirect('mainadmin-view-doctor')
     return render(request, 'hospital/mainadmin/main_admin_add_doctor.html', context=mydict)
 
 
@@ -730,6 +765,8 @@ def update_patient_view(request, pk):
             patient.assigned_doctor_id = request.POST.get('assigned_doctor_id')
             patient.save()
             return redirect('admin-view-patient')
+        else:
+            return render(request, 'hospital/mainadmin/main_admin_update_patient.html', context=mydict)
     return render(request, 'hospital/mainadmin/main_admin_update_patient.html', context=mydict)
 
 
@@ -755,7 +792,8 @@ def main_admin_add_patient_view(request):
 
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
-
+        else:
+            return render(request, 'hospital/mainadmin/main_admin_add_patient.html', context=mydict)
         return HttpResponseRedirect('main-admin-view-patient')
     return render(request, 'hospital/mainadmin/main_admin_add_patient.html', context=mydict)
 
@@ -791,7 +829,6 @@ def reject_patient_view(request, pk):
 # ---------------------------------------------------------------------------------
 # ------------------------ MAIN ADMIN RELATED VIEWS END ---------------------------
 # ---------------------------------------------------------------------------------
-
 
 
 # ---------------------------------------------------------------------------------
@@ -906,8 +943,6 @@ def delete_appointment_view(request, pk):
 # ---------------------------------------------------------------------------------
 
 
-
-
 # ---------------------------------------------------------------------------------
 # ------------------------ PATIENT RELATED VIEWS START ------------------------------
 # ---------------------------------------------------------------------------------
@@ -1011,6 +1046,8 @@ def patient_book_appointment_view(request):
             appointment.patientName = request.user.first_name  # ----user can choose any patient but only their info will be stored
             appointment.status = False
             appointment.save()
+        else:
+            return render(request, 'hospital/patient/patient_book_appointment.html', context=mydict)
         return HttpResponseRedirect('patient-view-appointment')
     return render(request, 'hospital/patient/patient_book_appointment.html', context=mydict)
 
@@ -1058,6 +1095,7 @@ def patient_discharge_view(request):
         }
     return render(request, 'hospital/patient/patient_discharge.html', context=patientDict)
 
+
 # ---------------------------------------------------------------------------------
 # ------------------------ PATIENT RELATED VIEWS END ------------------------------
 # ---------------------------------------------------------------------------------
@@ -1081,6 +1119,8 @@ def contactus_view(request):
             send_mail(str(name) + ' || ' + str(email), message, settings.EMAIL_HOST_USER, settings.EMAIL_RECEIVING_USER,
                       fail_silently=False)
             return render(request, 'hospital/contactussuccess.html')
+        else:
+            return render(request, 'hospital/contactus.html', {'form': sub})
     return render(request, 'hospital/contactus.html', {'form': sub})
 
 # ---------------------------------------------------------------------------------

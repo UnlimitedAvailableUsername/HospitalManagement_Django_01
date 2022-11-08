@@ -62,7 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices, null=True, blank=True)
+    hospital = models.CharField(max_length=10, choices=hospital_choices, null=True, blank=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
@@ -92,13 +92,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Doctor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, unique=True, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='profile_pic/DoctorProfilePic/', null=True, blank=True)
     address = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20, null=True)
     department = models.CharField(max_length=50, choices=departments, default='Cardiologist')
     status = models.BooleanField(default=False)
-    hospital = models.CharField(max_length=10, choices=hospital_choices)
+    hospital_model = models.ForeignKey(User, to_field='hospital', on_delete=models.CASCADE)
 
     @property
     def get_name(self):
@@ -121,8 +121,7 @@ class Patient(models.Model):
     assigned_doctor_id = models.PositiveIntegerField(null=True)
     admitDate = models.DateField(auto_now=True)
     status = models.BooleanField(default=False)
-    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
-
+    hospital_model = models.ForeignKey(User, to_field='hospital', on_delete=models.CASCADE)
     @property
     def get_name(self):
         return self.user.first_name + " " + self.user.last_name
@@ -136,8 +135,8 @@ class Patient(models.Model):
 
 
 class MainAdmin(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    status = models.BooleanField(default=True)
 
     @property
     def get_name(self):

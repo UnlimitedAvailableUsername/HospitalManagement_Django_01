@@ -10,17 +10,23 @@ class AdminSignupForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'password', 'hospital']
         widgets = {
-            'password': forms.PasswordInput()
+            'password': forms.PasswordInput(),
         }
 
 
-class MainAdminSignupForm(forms.ModelForm):
+class MainAdminUserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'username', 'password']
         widgets = {
             'password': forms.PasswordInput()
         }
+
+
+class MainAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.MainAdmin
+        fields = ['status']
 
 
 # for student related form
