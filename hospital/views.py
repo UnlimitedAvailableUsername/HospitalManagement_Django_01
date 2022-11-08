@@ -87,7 +87,7 @@ def patient_signup_view(request):
             user.save()
             patient = patientForm.save(commit=False)
             patient.user = user
-            patient.assignedDoctorId = request.POST.get('assignedDoctorId')
+            patient.assigned_doctor_id = request.POST.get('assigned_doctor_id')
             patient = patient.save()
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
@@ -311,7 +311,7 @@ def update_patient_view(request, pk):
             user.save()
             patient = patientForm.save(commit=False)
             patient.status = True
-            patient.assignedDoctorId = request.POST.get('assignedDoctorId')
+            patient.assigned_doctor_id = request.POST.get('assigned_doctor_id')
             patient.save()
             return redirect('admin-view-patient')
     return render(request, 'hospital/admin/admin_update_patient.html', context=mydict)
@@ -334,7 +334,7 @@ def admin_add_patient_view(request):
             patient = patientForm.save(commit=False)
             patient.user = user
             patient.status = True
-            patient.assignedDoctorId = request.POST.get('assignedDoctorId')
+            patient.assigned_doctor_id = request.POST.get('assigned_doctor_id')
             patient.save()
 
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
@@ -385,7 +385,7 @@ def admin_discharge_patient_view(request):
 def discharge_patient_view(request, pk):
     patient = models.Patient.objects.get(id=pk)
     days = (date.today() - patient.admitDate)  # 2 days, 0:00:00
-    assignedDoctor = models.User.objects.all().filter(id=patient.assignedDoctorId)
+    assignedDoctor = models.User.objects.all().filter(id=patient.assigned_doctor_id)
     d = days.days  # only how many day that is 2
     patientDict = {
         'patientId': pk,
@@ -409,7 +409,7 @@ def discharge_patient_view(request, pk):
         }
         patientDict.update(feeDict)
         # for updating to database patientDischargeDetails (pDD)
-        pDD = models.PatientDischargeDetails()
+        pDD = models.PatientDischargeDetail()
         pDD.patientId = pk
         pDD.patientName = patient.get_name
         pDD.assignedDoctorName = assignedDoctor[0].first_name
@@ -448,7 +448,7 @@ def render_to_pdf(template_src, context_dict):
 
 
 def download_pdf_view(request, pk):
-    dischargeDetails = models.PatientDischargeDetails.objects.all().filter(patientId=pk).order_by('-id')[:1]
+    dischargeDetails = models.PatientDischargeDetail.objects.all().filter(patientId=pk).order_by('-id')[:1]
     dict = {
         'patientName': dischargeDetails[0].patientName,
         'assignedDoctorName': dischargeDetails[0].assignedDoctorName,
@@ -541,9 +541,9 @@ def reject_appointment_view(request, pk):
 @user_passes_test(is_doctor)
 def doctor_dashboard_view(request):
     # for three cards
-    patientcount = models.Patient.objects.all().filter(status=True, assignedDoctorId=request.user.id).count()
+    patientcount = models.Patient.objects.all().filter(status=True, assigned_doctor_id=request.user.id).count()
     appointmentcount = models.Appointment.objects.all().filter(status=True, doctorId=request.user.id).count()
-    patientdischarged = models.PatientDischargeDetails.objects.all().distinct().filter(
+    patientdischarged = models.PatientDischargeDetail.objects.all().distinct().filter(
         assignedDoctorName=request.user.first_name).count()
 
     # for  table in doctor dashboard
@@ -575,7 +575,7 @@ def doctor_patient_view(request):
 @login_required(login_url='doctorlogin')
 @user_passes_test(is_doctor)
 def doctor_view_patient_view(request):
-    patients = models.Patient.objects.all().filter(status=True, assignedDoctorId=request.user.id)
+    patients = models.Patient.objects.all().filter(status=True, assigned_doctor_id=request.user.id)
     doctor = models.Doctor.objects.get(user_id=request.user.id)  # for profile picture of doctor in sidebar
     return render(request, 'hospital/doctor/doctor_view_patient.html', {'patients': patients, 'doctor': doctor})
 
@@ -583,7 +583,7 @@ def doctor_view_patient_view(request):
 @login_required(login_url='doctorlogin')
 @user_passes_test(is_doctor)
 def doctor_view_discharge_patient_view(request):
-    dischargedpatients = models.PatientDischargeDetails.objects.all().distinct().filter(
+    dischargedpatients = models.PatientDischargeDetail.objects.all().distinct().filter(
         assignedDoctorName=request.user.first_name)
     doctor = models.Doctor.objects.get(user_id=request.user.id)  # for profile picture of doctor in sidebar
     return render(request, 'hospital/doctor/doctor_view_discharge_patient.html',
@@ -655,7 +655,7 @@ def delete_appointment_view(request, pk):
 @user_passes_test(is_patient)
 def patient_dashboard_view(request):
     patient = models.Patient.objects.get(user_id=request.user.id)
-    doctor = models.Doctor.objects.get(user_id=patient.assignedDoctorId)
+    doctor = models.Doctor.objects.get(user_id=patient.assigned_doctor_id)
     mydict = {
         'patient': patient,
         'doctorName': doctor.get_name,
@@ -768,7 +768,7 @@ def patient_view_appointment_view(request):
 @user_passes_test(is_patient)
 def patient_discharge_view(request):
     patient = models.Patient.objects.get(user_id=request.user.id)  # for profile picture of patient in sidebar
-    dischargeDetails = models.PatientDischargeDetails.objects.all().filter(patientId=patient.id).order_by('-id')[:1]
+    dischargeDetails = models.PatientDischargeDetail.objects.all().filter(patientId=patient.id).order_by('-id')[:1]
     patientDict = None
     if dischargeDetails:
         patientDict = {

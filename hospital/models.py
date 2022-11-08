@@ -91,12 +91,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.active
 
 
-
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='profile_pic/DoctorProfilePic/', null=True, blank=True)
     address = models.CharField(max_length=40)
-    mobile = models.IntegerField(null=True)
+    mobile = models.CharField(max_length=20, null=True)
     department = models.CharField(max_length=50, choices=departments, default='Cardiologist')
     status = models.BooleanField(default=False)
     hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
@@ -117,9 +116,9 @@ class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='profile_pic/PatientProfilePic/', null=True, blank=True)
     address = models.CharField(max_length=40)
-    mobile = models.IntegerField(null=True)
+    mobile = models.CharField(max_length=20, null=True)
     symptoms = models.CharField(max_length=100, null=False)
-    assignedDoctorId = models.PositiveIntegerField(null=True)
+    assigned_doctor_id = models.PositiveIntegerField(null=True)
     admitDate = models.DateField(auto_now=True)
     status = models.BooleanField(default=False)
     hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
@@ -136,6 +135,25 @@ class Patient(models.Model):
         return self.user.first_name + " (" + self.symptoms + ")"
 
 
+class MainAdmin(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(upload_to='profile_pic/DoctorProfilePic/', null=True, blank=True)
+    address = models.CharField(max_length=40)
+    mobile = models.IntegerField(null=True)
+    status = models.BooleanField(default=False)
+
+    @property
+    def get_name(self):
+        return self.user.first_name + " " + self.user.last_name
+
+    @property
+    def get_id(self):
+        return self.user.id
+
+    def __str__(self):
+        return self.user.first_name
+
+
 class Appointment(models.Model):
     patientId = models.PositiveIntegerField(null=True)
     doctorId = models.PositiveIntegerField(null=True)
@@ -146,12 +164,12 @@ class Appointment(models.Model):
     status = models.BooleanField(default=False)
 
 
-class PatientDischargeDetails(models.Model):
+class PatientDischargeDetail(models.Model):
     patientId = models.PositiveIntegerField(null=True)
     patientName = models.CharField(max_length=40)
     assignedDoctorName = models.CharField(max_length=40)
     address = models.CharField(max_length=40)
-    mobile = models.IntegerField(null=True)
+    mobile = models.CharField(max_length=20, null=True)
     symptoms = models.CharField(max_length=100, null=True)
 
     admitDate = models.DateField(null=False)
