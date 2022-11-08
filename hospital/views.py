@@ -9,7 +9,10 @@ from hospital.forms import *
 from . import forms, models
 
 
-# Create your views here.
+# -------------------------------------------------------------------------------
+# --------------------------------- SIGNUP VIEW START ---------------------------
+# -------------------------------------------------------------------------------
+
 def home_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
@@ -90,6 +93,10 @@ def patient_signup_view(request):
             my_patient_group[0].user_set.add(user)
         return HttpResponseRedirect('patientlogin')
     return render(request, 'hospital/patient/patientsignup.html', context=mydict)
+
+# -------------------------------------------------------------------------------
+# --------------------------------- SIGNUP VIEW END ---------------------------
+# -------------------------------------------------------------------------------
 
 
 # -----------for checking user is doctor , patient or admin(by sumit)
