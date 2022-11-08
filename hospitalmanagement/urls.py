@@ -61,6 +61,27 @@ urlpatterns = [
     path('reject-appointment/<int:pk>', views.reject_appointment_view, name='reject-appointment'),
 ]
 
+urlpatterns += [
+    path('mainadminclick', views.main_adminclick_view),
+    path('mainadminsignup', views.main_admin_signup_view),
+    path('mainadminlogin', LoginView.as_view(template_name='hospital/mainadmin/main_adminlogin.html')),
+
+    path('mainadmin-dashboard', views.main_admin_dashboard_view, name='main-admin-dashboard'),
+    path('mainadmin-doctor', views.main_admin_doctor_view, name='main-admin-doctor'),
+    path('mainadmin-view-doctor', views.main_admin_view_doctor_view, name='main-admin-view-doctor'),
+    path('mainadmin-add-doctor', views.main_admin_add_doctor_view, name='main-admin-add-doctor'),
+    path('mainadmin-approve-doctor', views.main_admin_approve_doctor_view, name='main-admin-approve-doctor'),
+    path('mainadmin-view-doctor-specialisation', views.main_admin_view_doctor_specialisation_view,
+         name='main-admin-view-doctor-specialisation'),
+
+    path('mainadmin-patient', views.main_admin_patient_view, name='main-admin-patient'),
+    path('mainadmin-view-patient', views.main_admin_view_patient_view, name='main-admin-view-patient'),
+    path('mainadmin-add-patient', views.main_admin_add_patient_view, name='main-admin-add-patient'),
+    path('mainadmin-approve-patient', views.main_admin_approve_patient_view, name='main-admin-approve-patient'),
+    path('mainadmin-discharge-patient', views.admin_discharge_patient_view, name='main-admin-discharge-patient'),
+]
+
+
 # ---------FOR DOCTOR RELATED URLS-------------------------------------
 urlpatterns += [
     path('doctor-dashboard', views.doctor_dashboard_view, name='doctor-dashboard'),

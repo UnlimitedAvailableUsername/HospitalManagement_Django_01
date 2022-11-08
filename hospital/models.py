@@ -62,7 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
+    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices, null=True, blank=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
@@ -98,7 +98,7 @@ class Doctor(models.Model):
     mobile = models.CharField(max_length=20, null=True)
     department = models.CharField(max_length=50, choices=departments, default='Cardiologist')
     status = models.BooleanField(default=False)
-    hospital = models.CharField(max_length=10, default='HAU', choices=hospital_choices)
+    hospital = models.CharField(max_length=10, choices=hospital_choices)
 
     @property
     def get_name(self):
@@ -137,10 +137,7 @@ class Patient(models.Model):
 
 class MainAdmin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_picture = models.ImageField(upload_to='profile_pic/DoctorProfilePic/', null=True, blank=True)
-    address = models.CharField(max_length=40)
-    mobile = models.IntegerField(null=True)
-    status = models.BooleanField(default=False)
+
 
     @property
     def get_name(self):
