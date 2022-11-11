@@ -1,23 +1,11 @@
 {% extends 'hospital/admin/admin_base.html' %}
 {% block content %}
+    <br><br>
     {% load static %}
     <head>
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet"
-              id="bootstrap-css">
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-
         <style media="screen">
-            a:link {
-                text-decoration: none;
-            }
-
-            h6 {
+            h2 {
                 text-align: center;
-            }
-
-            .row {
-                margin: 100px;
             }
         </style>
     </head>
@@ -25,7 +13,7 @@
     <div class="container">
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h6 class="panel-title">Patient</h6>
+                <h2 class="panel-title">Patient</h2>
             </div>
             <table class="table table-hover" id="dev-table">
                 <thead>
@@ -49,12 +37,12 @@
                         <td>{{ p.address }}</td>
                         <td>
                             <a class="btn btn-primary btn-s" href="{% url 'update-patient' p.id %}">
-                                <span class="glyphicon glyphicon-edit"/>
+                                <span class="glyphicon glyphicon-edit">Edit</span>
                             </a>
                         </td>
                         <td>
                             <a class="btn btn-danger btn-s" href="{% url 'delete-patient-from-hospital' p.id %}">
-                                <span class="glyphicon glyphicon-trash"/>
+                                <span class="glyphicon glyphicon-trash">Delete</span>
                             </a>
                         </td>
                     </tr>

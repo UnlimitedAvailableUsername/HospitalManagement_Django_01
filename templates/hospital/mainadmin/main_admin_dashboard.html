@@ -1,8 +1,8 @@
 {% extends 'hospital/mainadmin/main_admin_base.html' %}
 {% load static %}
 {% block content %}
+    <br><br>
     {% include 'hospital/mainadmin/main_admin_dashboard_cards.html' %}
-
     <div class="container">
         <div class="row">
             <div class="panel panel-primary col-md-5" style="margin-left:2%;">
@@ -45,7 +45,6 @@
                         <th>Contact</th>
                         <th>Address</th>
                         <th>Status</th>
-
                     </tr>
                     </thead>
                     {% for p in patients %}
@@ -59,13 +58,11 @@
                             {% else %}
                                 <td><span class="label label-success">On Hold</span></td>
                             {% endif %}
-
                         </tr>
                     {% endfor %}
                 </table>
             </div>
         </div>
     </div>
-
 
 {% endblock content %}

@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
 
 
     <style media="screen">
@@ -405,6 +407,7 @@
 
 <!-- partial:index.partial.html -->
 <nav class="menu" tabindex="0">
+    <br><br>
     <div class="smartphone-menu-trigger"></div>
     <header class="avatar">
         <img src="{% static "images/adminpropic.png" %}"/>
@@ -434,9 +437,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                <div class="navbar-nav" style=" margin-left: 90%;">
-
-                    <a href="/logout" class="nav-item nav-link">Logout</a>
+                <div class="navbar-nav" style=" margin-left: 96%;">
+                    <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
                 </div>
             </div>
         </nav>

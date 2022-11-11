@@ -1,13 +1,11 @@
 {% extends 'hospital/mainadmin/main_admin_base.html' %}
 {% block content %}
+    <br><br>
     {% load static %}
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <div class="container">
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h6 class="panel-title">Doctors &nbsp Applied For Registration</h6>
+                <h2 style="text-align:center;" class="panel-title">Doctors that applied for Registration</h2>
             </div>
             <table class="table table-hover" id="dev-table">
                 <thead>
@@ -31,17 +29,21 @@
                         <td>{{ d.mobile }}</td>
                         <td>{{ d.address }}</td>
                         <td>{{ d.department }}</td>
-                        <td><a class="btn btn-success btn-s" href="{% url 'approve-doctor' d.id %}"><span
-                                class="glyphicon glyphicon-ok"></span></a></td>
-                        <td><a class="btn btn-danger btn-s" href="{% url 'reject-doctor' d.id %}"><span
-                                class="glyphicon glyphicon-trash"></span></a></td>
+                        <td>
+                            <a class="btn btn-success btn-s" href="{% url 'approve-doctor' d.id %}">
+                                <span class="glyphicon glyphicon-ok">Approve</span>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="btn btn-danger btn-s" href="{% url 'reject-doctor' d.id %}">
+                                <span class="glyphicon glyphicon-trash">Reject</span>
+                            </a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
         </div>
 
-
     </div>
-
 
 {% endblock content %}

@@ -227,7 +227,6 @@ def admin_doctor_view(request):
 def admin_view_doctor_view(request):
     qs = User.objects.get(username=request.user)
     doctors = Doctor.objects.filter(user__hospital=qs.hospital)
-    print(doctors)
     return render(request, 'hospital/admin/admin_view_doctor.html', {'doctors': doctors})
 
 
@@ -338,9 +337,8 @@ def admin_patient_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_patient_view(request):
-    user = request.user.hospital
-    patients = models.Patient.objects.all().filter(status=True, hospital=user)
-    # dito po sir, ma-filter lang po sana, kaso ayn nga po, ID instead daw po yung nakukuha
+    qs = User.objects.get(username=request.user)
+    patients = models.Patient.objects.all().filter(status=True, user__hospital=qs.hospital)
     return render(request, 'hospital/admin/admin_view_patient.html', {'patients': patients})
 
 
@@ -805,7 +803,7 @@ def main_admin_add_patient_view(request):
     return render(request, 'hospital/mainadmin/main_admin_add_patient.html', context=mydict)
 
 
-# ------------------FOR APPROVING PATIENT BY ADMIN----------------------
+# ------------------ FOR APPROVING PATIENT BY MAIN ADMIN ----------------------
 @login_required(login_url='mainadminlogin')
 @user_passes_test(is_mainadmin)
 def main_admin_approve_patient_view(request):
