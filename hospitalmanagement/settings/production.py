@@ -1,5 +1,5 @@
 import os
-
+from pathlib import Path
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
@@ -82,6 +82,11 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+import dj_database_url
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
+DATABASES['default']['CONN_MAX_AGE'] = 500
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
