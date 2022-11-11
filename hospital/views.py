@@ -11,6 +11,7 @@ from . import forms, models
 # -------------------------------------------------------------------------------
 # --------------------------------- SIGNUP VIEW START ---------------------------
 # -------------------------------------------------------------------------------
+from .models import Doctor
 
 
 def home_view(request):
@@ -188,14 +189,15 @@ def afterlogin_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_dashboard_view(request):
+    qs = User.objects.get(username=request.user)
     # for both table in admin dashboard
     doctors = models.Doctor.objects.all().order_by('-id')
     patients = models.Patient.objects.all().order_by('-id')
     # for three cards
-    doctorcount = models.Doctor.objects.all().filter(status=True).count()
+    doctorcount = models.Doctor.objects.all().filter(status=True, user__hospital=qs.hospital).count()
     pendingdoctorcount = models.Doctor.objects.all().filter(status=False).count()
 
-    patientcount = models.Patient.objects.all().filter(status=True).count()
+    patientcount = models.Patient.objects.all().filter(status=True, user__hospital=qs.hospital).count()
     pendingpatientcount = models.Patient.objects.all().filter(status=False).count()
 
     appointmentcount = models.Appointment.objects.all().filter(status=True).count()
@@ -223,8 +225,9 @@ def admin_doctor_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_doctor_view(request):
-    hospital = request.user.hospital
-    doctors = models.Doctor.objects.all().filter(status=True, user=hospital)
+    qs = User.objects.get(username=request.user)
+    doctors = Doctor.objects.filter(user__hospital=qs.hospital)
+    print(doctors)
     return render(request, 'hospital/admin/admin_view_doctor.html', {'doctors': doctors})
 
 
@@ -294,8 +297,8 @@ def admin_add_doctor_view(request):
 @user_passes_test(is_admin)
 def admin_approve_doctor_view(request):
     # those whose approval are needed
-    user = request.user.hospital
-    doctors = models.Doctor.objects.all().filter(status=False, hospital=user)
+    qs = User.objects.get(username=request.user)
+    doctors = models.Doctor.objects.all().filter(status=False, user__hospital=qs.hospital)
     return render(request, 'hospital/admin/admin_approve_doctor.html', {'doctors': doctors})
 
 
@@ -321,8 +324,8 @@ def reject_doctor_view(request, pk):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_doctor_specialisation_view(request):
-    user = request.user.hospital
-    doctors = models.Doctor.objects.all().filter(status=True, hospital=user)
+    qs = User.objects.get(username=request.user)
+    doctors = models.Doctor.objects.all().filter(status=True, user__hospital=qs.hospital)
     return render(request, 'hospital/admin/admin_view_doctor_Specialisation.html', {'doctors': doctors})
 
 
@@ -337,6 +340,7 @@ def admin_patient_view(request):
 def admin_view_patient_view(request):
     user = request.user.hospital
     patients = models.Patient.objects.all().filter(status=True, hospital=user)
+    # dito po sir, ma-filter lang po sana, kaso ayn nga po, ID instead daw po yung nakukuha
     return render(request, 'hospital/admin/admin_view_patient.html', {'patients': patients})
 
 
@@ -409,7 +413,8 @@ def admin_add_patient_view(request):
 @user_passes_test(is_admin)
 def admin_approve_patient_view(request):
     # those whose approval are needed
-    patients = models.Patient.objects.all().filter(status=False)
+    qs = User.objects.get(username=request.user)
+    patients = models.Patient.objects.all().filter(status=False, user__hospital=qs.hospital)
     return render(request, 'hospital/admin/admin_approve_patient.html', {'patients': patients})
 
 
@@ -436,7 +441,8 @@ def reject_patient_view(request, pk):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_discharge_patient_view(request):
-    patients = models.Patient.objects.all().filter(status=True)
+    qs = User.objects.get(username=request.user)
+    patients = models.Patient.objects.all().filter(status=True, user__hospital=qs.hospital)
     return render(request, 'hospital/admin/admin_discharge_patient.html', {'patients': patients})
 
 
