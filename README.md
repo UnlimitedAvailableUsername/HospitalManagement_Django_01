@@ -1,1 +1,1 @@
-Sir exempted na po ba kami sa midterm?
+We love Sir Arnaz with slight modification
