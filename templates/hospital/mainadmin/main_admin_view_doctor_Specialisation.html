@@ -38,7 +38,7 @@
                 </thead>
                 {% for d in doctors %}
                     <tr>
-                        <td> {{ d.hospital }} </td>
+                        <td> {{ d.get_hospital }} </td>
                         <td> {{ d.department }} </td>
                         <td> {{ d.get_name }} </td>
                         <td> {{ d.mobile }} </td>

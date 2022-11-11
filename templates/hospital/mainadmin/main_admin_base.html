@@ -58,27 +58,6 @@
             text-decoration: none;
         }
 
-        .fa-facebook {
-            background: #3B5998;
-            color: white;
-            margin-top: 30px;
-        }
-
-        .fa-whatsapp {
-            background: #25d366;
-            color: white;
-        }
-
-        .fa-twitter {
-            background: #55ACEE;
-            color: white;
-        }
-
-        .fa-instagram {
-            background: #125688;
-            color: white;
-        }
-
         p {
             text-align: center;
 
@@ -96,7 +75,7 @@
         }
 
         .menu {
-            background: #03a9f4;
+            background: #506d7f;
             height: 100vh;
             width: 240px;
             position: fixed;
@@ -107,7 +86,7 @@
         }
 
         .menu .avatar {
-            background: rgba(0, 0, 0, 0.1);
+            background: #506d7f;
             padding: 2em 0.5em;
             text-align: center;
         }
@@ -447,12 +426,10 @@
 </nav>
 
 <main>
-
-
     <!-- nav start -->
     <div class="bs-example">
         <nav class="navbar navbar-expand-md  navbar-dark fixed-top" style="background:#337AB7;">
-            <a href="/main-admin-dashboard" class="navbar-brand">Home</a>
+            <a href="{% url 'main-admin-dashboard' %}" class="navbar-brand">Home</a>
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
             </button>

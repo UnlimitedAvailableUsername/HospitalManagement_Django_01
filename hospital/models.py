@@ -79,6 +79,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return True
 
     @property
+    def get_hospital(self):
+        return self.hospital
+
+    @property
     def is_staff(self):
         return self.staff
 
@@ -92,7 +96,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Doctor(models.Model):
-    user = models.OneToOneField(User, unique=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='profile_pic/DoctorProfilePic/', null=True, blank=True)
     address = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20, null=True)
@@ -102,6 +106,10 @@ class Doctor(models.Model):
     @property
     def get_name(self):
         return self.user.first_name + " " + self.user.last_name
+
+    @property
+    def get_hospital(self):
+        return self.user.hospital
 
     @property
     def get_id(self):
@@ -120,9 +128,14 @@ class Patient(models.Model):
     assigned_doctor_id = models.PositiveIntegerField(null=True)
     admitDate = models.DateField(auto_now=True)
     status = models.BooleanField(default=False)
+
     @property
     def get_name(self):
         return self.user.first_name + " " + self.user.last_name
+
+    @property
+    def get_hospital(self):
+        return self.user.hospital
 
     @property
     def get_id(self):

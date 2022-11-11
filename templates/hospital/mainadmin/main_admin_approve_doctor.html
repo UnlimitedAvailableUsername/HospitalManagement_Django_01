@@ -13,6 +13,7 @@
                 <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Hospital</th>
                     <th>Profile Picture</th>
                     <th>Contact</th>
                     <th>Address</th>
@@ -24,6 +25,7 @@
                 {% for d in doctors %}
                     <tr>
                         <td> {{ d.get_name }}</td>
+                        <td> {{ d.get_hospital }}</td>
                         <td><img src="{% static d.profile_picture.url %}" alt="Profile Pic" height="40px" width="40px"/>
                         </td>
                         <td>{{ d.mobile }}</td>

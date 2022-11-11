@@ -4,7 +4,6 @@ from django.http import HttpResponseRedirect
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime, timedelta, date
-from django.conf import settings
 from hospital.forms import *
 from . import forms, models
 
@@ -224,8 +223,8 @@ def admin_doctor_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_doctor_view(request):
-    user = request.user.hospital
-    doctors = models.Doctor.objects.all().filter(status=True)
+    hospital = request.user.hospital
+    doctors = models.Doctor.objects.all().filter(status=True, user=hospital)
     return render(request, 'hospital/admin/admin_view_doctor.html', {'doctors': doctors})
 
 
@@ -295,7 +294,8 @@ def admin_add_doctor_view(request):
 @user_passes_test(is_admin)
 def admin_approve_doctor_view(request):
     # those whose approval are needed
-    doctors = models.Doctor.objects.all().filter(status=False)
+    user = request.user.hospital
+    doctors = models.Doctor.objects.all().filter(status=False, hospital=user)
     return render(request, 'hospital/admin/admin_approve_doctor.html', {'doctors': doctors})
 
 
@@ -321,6 +321,7 @@ def reject_doctor_view(request, pk):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_view_doctor_specialisation_view(request):
+    user = request.user.hospital
     doctors = models.Doctor.objects.all().filter(status=True, hospital=user)
     return render(request, 'hospital/admin/admin_view_doctor_Specialisation.html', {'doctors': doctors})
 
@@ -813,7 +814,7 @@ def approve_patient_view(request, pk):
     patient = models.Patient.objects.get(id=pk)
     patient.status = True
     patient.save()
-    return redirect(reverse('main_admin-approve-patient'))
+    return redirect(reverse('main-admin-approve-patient'))
 
 
 @login_required(login_url='mainadminlogin')
@@ -824,6 +825,63 @@ def reject_patient_view(request, pk):
     user.delete()
     patient.delete()
     return redirect('main-admin-approve-patient')
+
+
+@login_required(login_url='mainadminlogin')
+@user_passes_test(is_mainadmin)
+def admin_discharge_patient_view(request):
+    patients = models.Patient.objects.all().filter(status=True)
+    return render(request, 'hospital/mainadmin/main_admin_discharge_patient.html', {'patients': patients})
+
+
+@login_required(login_url='mainadminlogin')
+@user_passes_test(is_mainadmin)
+def discharge_patient_view(request, pk):
+    patient = models.Patient.objects.get(id=pk)
+    days = (date.today() - patient.admitDate)  # 2 days, 0:00:00
+    assignedDoctor = models.User.objects.all().filter(id=patient.assigned_doctor_id)
+    d = days.days  # only how many day that is 2
+    patientDict = {
+        'patientId': pk,
+        'name': patient.get_name,
+        'mobile': patient.mobile,
+        'address': patient.address,
+        'symptoms': patient.symptoms,
+        'admitDate': patient.admitDate,
+        'todayDate': date.today(),
+        'day': d,
+        'assignedDoctorName': assignedDoctor[0].first_name,
+    }
+    if request.method == 'POST':
+        feeDict = {
+            'roomCharge': int(request.POST['roomCharge']) * int(d),
+            'doctorFee': request.POST['doctorFee'],
+            'medicineCost': request.POST['medicineCost'],
+            'OtherCharge': request.POST['OtherCharge'],
+            'total': (int(request.POST['roomCharge']) * int(d)) + int(request.POST['doctorFee']) + int(
+                request.POST['medicineCost']) + int(request.POST['OtherCharge'])
+        }
+        patientDict.update(feeDict)
+        # for updating to database patientDischargeDetails (pDD)
+        pDD = models.PatientDischargeDetail()
+        pDD.patientId = pk
+        pDD.patientName = patient.get_name
+        pDD.assignedDoctorName = assignedDoctor[0].first_name
+        pDD.address = patient.address
+        pDD.mobile = patient.mobile
+        pDD.symptoms = patient.symptoms
+        pDD.admitDate = patient.admitDate
+        pDD.releaseDate = date.today()
+        pDD.daySpent = int(d)
+        pDD.medicineCost = int(request.POST['medicineCost'])
+        pDD.roomCharge = int(request.POST['roomCharge']) * int(d)
+        pDD.doctorFee = int(request.POST['doctorFee'])
+        pDD.OtherCharge = int(request.POST['OtherCharge'])
+        pDD.total = (int(request.POST['roomCharge']) * int(d)) + int(request.POST['doctorFee']) + int(
+            request.POST['medicineCost']) + int(request.POST['OtherCharge'])
+        pDD.save()
+        return render(request, 'hospital/patient/patient_final_bill.html', context=patientDict)
+    return render(request, 'hospital/patient/patient_generate_bill.html', context=patientDict)
 
 
 # ---------------------------------------------------------------------------------

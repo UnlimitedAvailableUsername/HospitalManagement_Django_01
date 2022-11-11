@@ -12,8 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{% static '/style.css' %}">
-
-
     <style media="screen">
         a:link {
             text-decoration: none;
@@ -27,63 +25,9 @@
             color: white;
         }
 
-
-        /*---------------------------------------
-           Social section
-        -----------------------------------------*/
-        footer {
-            padding: 0px 0px 0px 0px;
-            background-color: black;
-            margin: 0px;
-        }
-
-
-        #ftr {
-
-            padding: 20px;
-        }
-
-        .fa {
-
-            font-size: 23px;
-            width: 60px;
-            text-align: center;
-            text-decoration: none;
-            margin: 5px 2px;
-            border-radius: 50%;
-        }
-
-        .fa:hover {
-            opacity: 0.5;
-            text-decoration: none;
-        }
-
-        .fa-facebook {
-            background: #3B5998;
-            color: white;
-            margin-top: 30px;
-        }
-
-        .fa-whatsapp {
-            background: #25d366;
-            color: white;
-        }
-
-        .fa-twitter {
-            background: #55ACEE;
-            color: white;
-        }
-
-        .fa-instagram {
-            background: #125688;
-            color: white;
-        }
-
         p {
             text-align: center;
-
         }
-
 
         body {
 
@@ -239,19 +183,16 @@
                 transform: translate3d(0px, -50%, 0);
             }
         }
-
         @media screen and (max-width: 400px) {
             body {
                 padding-left: 0;
             }
-
             .menu {
                 width: 230px;
                 box-shadow: 0 0 0 100em rgba(0, 0, 0, 0);
                 transform: translate3d(-230px, 0, 0);
                 transition: all 0.3s ease-in-out;
             }
-
             .menu .smartphone-menu-trigger {
                 width: 40px;
                 height: 40px;
@@ -417,68 +358,58 @@
             padding: 0px;
         }
 
-
     </style>
-
 </head>
 
 <body>
+    <!-- partial:index.partial.html -->
+    <nav class="menu" tabindex="0">
+        <div class="smartphone-menu-trigger"></div>
+        <header class="avatar">
+            <img src="{% static "images/adminpropic.png" %}"/>
+            <br><br>
+            <h4>{{ request.user.hospital }}</h4>
+            <h6>Admin</h6>
+            <h2>{{ request.user.first_name }}</h2>
+        </header>
+        <ul>
+            <li tabindex="0" class="icon-dashboard">
+                <a style="color:white" href="/admin-dashboard">Dashboard</a>
+            </li>
+            <li tabindex="0" class="icon-customers">
+                <a style="color:white" href="/admin-doctor">Doctor</a>
+            </li>
+            <li tabindex="0" class="icon-users">
+                <a style="color:white" href="/admin-patient">Patient</a>
+            </li>
+            <li tabindex="0" class="icon-calendar">
+                <a style="color:white" href="/admin-appointment">Appointment</a>
+            </li>
+        </ul>
+    </nav>
 
-<!-- partial:index.partial.html -->
-<nav class="menu" tabindex="0">
-    <div class="smartphone-menu-trigger"></div>
-    <header class="avatar">
-        <img src="{% static "images/adminpropic.png" %}"/>
-        <br><br>
-        <h4>{{ request.user.hospital }}</h4>
-        <h6>Admin</h6>
-        <h2>{{ request.user.first_name }}</h2>
-    </header>
-    <ul>
-        <li tabindex="0" class="icon-dashboard">
-            <a style="color:white" href="/admin-dashboard">Dashboard</a>
-        </li>
-        <li tabindex="0" class="icon-customers">
-            <a style="color:white" href="/admin-doctor">Doctor</a>
-        </li>
-        <li tabindex="0" class="icon-users">
-            <a style="color:white" href="/admin-patient">Patient</a>
-        </li>
-        <li tabindex="0" class="icon-calendar">
-            <a style="color:white" href="/admin-appointment">Appointment</a>
-        </li>
-    </ul>
-</nav>
-
-<main>
-
-
-    <!-- nav start -->
-    <div class="bs-example">
-        <nav class="navbar navbar-expand-md  navbar-dark fixed-top" style="background:#337AB7;">
-            <a href="/admin-dashboard" class="navbar-brand">Home</a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                <div class="navbar-nav" style=" margin-left: 90%;">
-
-                    <a href="/logout" class="nav-item nav-link">Logout</a>
+    <main>
+        <!-- nav start -->
+        <div class="bs-example">
+            <nav class="navbar navbar-expand-md  navbar-dark fixed-top" style="background:#337AB7;">
+                <a href="{% url 'admin-dashboard' %}" class="navbar-brand">Home</a>
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                    <div class="navbar-nav" style=" margin-left: 90%;">
+                        <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </div>
-    <!-- nav end -->
-    <br><br>
-    <!-- content start-->
-    {% block content %}
+            </nav>
+        </div>
+        <!-- nav end -->
+        <br><br>
+        <!-- content start-->
+        {% block content %}
 
-    {% endblock content %}
-    <!-- content end-->
-
-</main>
-
-
+        {% endblock content %}
+        <!-- content end-->
+    </main>
 </body>
-
 </html>
